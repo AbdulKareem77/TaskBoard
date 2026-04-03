@@ -1,0 +1,72 @@
+<div class="loading-container" *ngIf="isLoading$ | async">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<div class="error-message" *ngIf="error$ | async as error">{{ error }}</div>
+
+<ng-container *ngIf="project$ | async as project">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>{{ project.name }}</h1>
+      <span class="status-badge" [class.archived]="project.isArchived">
+        {{ project.isArchived ? 'Archived' : 'Active' }}
+      </span>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button [routerLink]="['/projects', project.id, 'tasks']">
+        <mat-icon>assignment</mat-icon>
+        Tasks
+      </button>
+      <button mat-stroked-button [routerLink]="['/projects', project.id, 'board']">
+        <mat-icon>view_kanban</mat-icon>
+        Board
+      </button>
+    </div>
+  </div>
+
+  <!-- Project Info -->
+  <mat-card class="info-card">
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Owner</span>
+          <span class="info-value">{{ project.ownerName }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Members</span>
+          <span class="info-value">{{ project.memberCount }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Tasks</span>
+          <span class="info-value">{{ project.taskCount }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Created</span>
+          <span class="info-value">{{ project.dateCreated | date:'mediumDate' }}</span>
+        </div>
+      </div>
+      <div class="description" *ngIf="project.description">
+        <p>{{ project.description }}</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Members -->
+  <mat-card class="members-card">
+    <mat-card-header>
+      <mat-card-title>Members</mat-card-title>
+      <div class="card-header-action">
+        <button mat-raised-button color="primary" (click)="openAddMemberDialog()">
+          <mat-icon>person_add</mat-icon>
+          Add Member
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <app-member-list
+        [members]="project.members"
+        (removeMember)="onRemoveMember($event)"
+      ></app-member-list>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

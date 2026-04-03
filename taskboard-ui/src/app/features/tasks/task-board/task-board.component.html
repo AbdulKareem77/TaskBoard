@@ -1,0 +1,171 @@
+<div class="page-header">
+  <h1>Board</h1>
+  <div class="header-actions">
+    <mat-button-toggle-group value="board" class="view-toggle">
+      <mat-button-toggle value="list" matTooltip="List view" (click)="switchToList()">
+        <mat-icon>format_list_bulleted</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="board" matTooltip="Board view">
+        <mat-icon>view_kanban</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">
+      <mat-icon>add</mat-icon>
+      New Task
+    </button>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="isLoading$ | async">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<div class="error-message" *ngIf="error$ | async as error">{{ error }}</div>
+
+<div class="board-columns" *ngIf="!(isLoading$ | async)">
+
+  <!-- Todo Column -->
+  <div class="board-column">
+    <div class="column-header todo-header">
+      <span class="column-title">To Do</span>
+      <span class="task-count">{{ (todoTasks$ | async)?.length || 0 }}</span>
+    </div>
+    <div class="column-body">
+      <mat-card
+        class="task-card"
+        *ngFor="let task of todoTasks$ | async"
+        [routerLink]="['/projects', projectId, 'tasks', task.id]"
+      >
+        <mat-card-content>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta">
+            <span *ngIf="task.priority" [class]="'priority-chip ' + getPriorityClass(task.priority)">
+              {{ task.priority }}
+            </span>
+            <span *ngIf="task.dueDate" class="due-date">
+              <mat-icon class="due-icon">event</mat-icon>
+              {{ task.dueDate | date:'shortDate' }}
+            </span>
+          </div>
+          <div class="assignees" *ngIf="task.assignees.length > 0">
+            <mat-icon class="assignee-icon">person</mat-icon>
+            {{ task.assignees[0].fullName }}
+            <span *ngIf="task.assignees.length > 1"> +{{ task.assignees.length - 1 }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <div class="empty-column" *ngIf="(todoTasks$ | async)?.length === 0">
+        No tasks
+      </div>
+    </div>
+  </div>
+
+  <!-- In Progress Column -->
+  <div class="board-column">
+    <div class="column-header inprogress-header">
+      <span class="column-title">In Progress</span>
+      <span class="task-count">{{ (inProgressTasks$ | async)?.length || 0 }}</span>
+    </div>
+    <div class="column-body">
+      <mat-card
+        class="task-card"
+        *ngFor="let task of inProgressTasks$ | async"
+        [routerLink]="['/projects', projectId, 'tasks', task.id]"
+      >
+        <mat-card-content>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta">
+            <span *ngIf="task.priority" [class]="'priority-chip ' + getPriorityClass(task.priority)">
+              {{ task.priority }}
+            </span>
+            <span *ngIf="task.dueDate" class="due-date">
+              <mat-icon class="due-icon">event</mat-icon>
+              {{ task.dueDate | date:'shortDate' }}
+            </span>
+          </div>
+          <div class="assignees" *ngIf="task.assignees.length > 0">
+            <mat-icon class="assignee-icon">person</mat-icon>
+            {{ task.assignees[0].fullName }}
+            <span *ngIf="task.assignees.length > 1"> +{{ task.assignees.length - 1 }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <div class="empty-column" *ngIf="(inProgressTasks$ | async)?.length === 0">
+        No tasks
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Column -->
+  <div class="board-column">
+    <div class="column-header review-header">
+      <span class="column-title">Review</span>
+      <span class="task-count">{{ (reviewTasks$ | async)?.length || 0 }}</span>
+    </div>
+    <div class="column-body">
+      <mat-card
+        class="task-card"
+        *ngFor="let task of reviewTasks$ | async"
+        [routerLink]="['/projects', projectId, 'tasks', task.id]"
+      >
+        <mat-card-content>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta">
+            <span *ngIf="task.priority" [class]="'priority-chip ' + getPriorityClass(task.priority)">
+              {{ task.priority }}
+            </span>
+            <span *ngIf="task.dueDate" class="due-date">
+              <mat-icon class="due-icon">event</mat-icon>
+              {{ task.dueDate | date:'shortDate' }}
+            </span>
+          </div>
+          <div class="assignees" *ngIf="task.assignees.length > 0">
+            <mat-icon class="assignee-icon">person</mat-icon>
+            {{ task.assignees[0].fullName }}
+            <span *ngIf="task.assignees.length > 1"> +{{ task.assignees.length - 1 }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <div class="empty-column" *ngIf="(reviewTasks$ | async)?.length === 0">
+        No tasks
+      </div>
+    </div>
+  </div>
+
+  <!-- Done Column -->
+  <div class="board-column">
+    <div class="column-header done-header">
+      <span class="column-title">Done</span>
+      <span class="task-count">{{ (doneTasks$ | async)?.length || 0 }}</span>
+    </div>
+    <div class="column-body">
+      <mat-card
+        class="task-card"
+        *ngFor="let task of doneTasks$ | async"
+        [routerLink]="['/projects', projectId, 'tasks', task.id]"
+      >
+        <mat-card-content>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-meta">
+            <span *ngIf="task.priority" [class]="'priority-chip ' + getPriorityClass(task.priority)">
+              {{ task.priority }}
+            </span>
+            <span *ngIf="task.dueDate" class="due-date">
+              <mat-icon class="due-icon">event</mat-icon>
+              {{ task.dueDate | date:'shortDate' }}
+            </span>
+          </div>
+          <div class="assignees" *ngIf="task.assignees.length > 0">
+            <mat-icon class="assignee-icon">person</mat-icon>
+            {{ task.assignees[0].fullName }}
+            <span *ngIf="task.assignees.length > 1"> +{{ task.assignees.length - 1 }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <div class="empty-column" *ngIf="(doneTasks$ | async)?.length === 0">
+        No tasks
+      </div>
+    </div>
+  </div>
+
+</div>

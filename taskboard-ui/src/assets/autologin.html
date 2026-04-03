@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p id="status">Logging in...</p>
+<script>
+  var apiBase = 'http://localhost:5000/api';
+  fetch(apiBase + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'manager@taskboard.local', password: 'Password123!' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    return fetch(apiBase + '/auth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: d.oneTimeCode })
+    });
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    localStorage.setItem('taskboard_token', d.accessToken);
+    localStorage.setItem('taskboard_user', JSON.stringify(d.user));
+    document.getElementById('status').innerText = 'Done! Redirecting...';
+    window.location.href = '/dashboard';
+  })
+  .catch(function(e) {
+    document.getElementById('status').innerText = 'Error: ' + e.message;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<div class="page-header">
+  <h1>Tasks</h1>
+  <div class="header-actions">
+    <div class="status-filter-wrapper">
+      <mat-icon class="filter-icon">filter_list</mat-icon>
+      <span class="status-label">{{ getStatusLabel() }}</span>
+      <mat-icon class="select-arrow">expand_more</mat-icon>
+      <select class="status-select-overlay" (change)="onStatusFilter($any($event.target).value)">
+        <option *ngFor="let opt of statusOptions" [value]="opt.value" [selected]="opt.value === selectedStatus">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
+    <mat-button-toggle-group value="list" class="view-toggle">
+      <mat-button-toggle value="list" matTooltip="List view">
+        <mat-icon>format_list_bulleted</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="board" matTooltip="Board view" (click)="switchToBoard()">
+        <mat-icon>view_kanban</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">
+      <mat-icon>add</mat-icon>
+      New Task
+    </button>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="isLoading$ | async">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<div class="error-message" *ngIf="error$ | async as error">{{ error }}</div>
+
+<mat-card *ngIf="!(isLoading$ | async)">
+  <mat-card-content>
+    <table mat-table [dataSource]="(tasks$ | async)?.items || []" class="full-width">
+
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>Title</th>
+        <td mat-cell *matCellDef="let task">
+          <a [routerLink]="['/projects', projectId, 'tasks', task.id]" class="task-link">
+            {{ task.title }}
+          </a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let task">
+          <span [class]="'status-chip ' + getStatusClass(task.status)">{{ task.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef>Priority</th>
+        <td mat-cell *matCellDef="let task">
+          <span *ngIf="task.priority" [class]="'priority-chip ' + getPriorityClass(task.priority)">
+            {{ task.priority }}
+          </span>
+          <span *ngIf="!task.priority" class="no-value">—</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let task">
+          <span *ngIf="task.dueDate">{{ task.dueDate | date:'mediumDate' }}</span>
+          <span *ngIf="!task.dueDate" class="no-value">—</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="assignees">
+        <th mat-header-cell *matHeaderCellDef>Assignees</th>
+        <td mat-cell *matCellDef="let task">
+          <span *ngIf="task.assignees.length === 0" class="no-value">Unassigned</span>
+          <span *ngFor="let a of task.assignees; let last = last" class="assignee-name">
+            {{ a.fullName }}<span *ngIf="!last">, </span>
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let task">
+          <button
+            mat-icon-button
+            [routerLink]="['/projects', projectId, 'tasks', task.id]"
+            matTooltip="View task"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="onDeleteTask(task)"
+            matTooltip="Delete task"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell empty-row" [attr.colspan]="displayedColumns.length">
+          No tasks found.
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      *ngIf="tasks$ | async as tasks"
+      [length]="tasks.totalCount"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      [pageIndex]="currentPage - 1"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,127 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.tasks-section {
+  grid-column: 1 / -1;
+}
+
+.task-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.task-column {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.column-header {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &.todo-header { color: #1565c0; }
+  &.inprogress-header { color: #e65100; }
+  &.review-header { color: #6a1b9a; }
+  &.done-header { color: #2e7d32; }
+}
+
+.count-badge {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.empty-state {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.projects-section,
+.activity-section {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tasks-section {
+    grid-column: 1 / -1;
+  }
+}
+
+.project-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.project-summary-item {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.project-name {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.project-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #3f51b5;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: #666;
+}

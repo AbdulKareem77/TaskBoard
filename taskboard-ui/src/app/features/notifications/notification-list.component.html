@@ -1,0 +1,70 @@
+<div class="page-header">
+  <h1>Notifications</h1>
+  <div class="header-actions">
+    <button
+      mat-stroked-button
+      (click)="toggleUnreadFilter()"
+      [color]="showUnreadOnly ? 'primary' : ''"
+    >
+      <mat-icon>{{ showUnreadOnly ? 'filter_alt' : 'filter_alt_off' }}</mat-icon>
+      {{ showUnreadOnly ? 'Showing Unread' : 'Show All' }}
+    </button>
+    <button mat-icon-button (click)="load()" aria-label="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="isLoading$ | async">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<mat-card *ngIf="!(isLoading$ | async)">
+  <mat-card-content>
+    <ng-container *ngIf="notifications$ | async as notifResponse">
+      <div class="summary-bar" *ngIf="notifResponse.unreadCount > 0">
+        <mat-icon color="warn">notifications_active</mat-icon>
+        <span>{{ notifResponse.unreadCount }} unread notification{{ notifResponse.unreadCount !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <mat-list *ngIf="notifResponse.items.length > 0">
+        <ng-container *ngFor="let notification of notifResponse.items; let last = last">
+          <mat-list-item
+            [class.unread]="!notification.isRead"
+            (click)="onMarkAsRead(notification)"
+            class="notification-item"
+          >
+            <mat-icon
+              matListItemIcon
+              [color]="notification.isRead ? '' : 'primary'"
+            >
+              {{ getTypeIcon(notification.type) }}
+            </mat-icon>
+            <div matListItemTitle class="notif-title">
+              {{ notification.title }}
+              <span class="unread-dot" *ngIf="!notification.isRead"></span>
+            </div>
+            <div matListItemLine class="notif-message">{{ notification.message }}</div>
+            <div matListItemLine class="notif-date">{{ notification.dateCreated | timeAgo }}</div>
+            <button
+              mat-icon-button
+              matListItemMeta
+              *ngIf="!notification.isRead"
+              (click)="$event.stopPropagation(); onMarkAsRead(notification)"
+              aria-label="Mark as read"
+              title="Mark as read"
+            >
+              <mat-icon>done</mat-icon>
+            </button>
+          </mat-list-item>
+          <mat-divider *ngIf="!last"></mat-divider>
+        </ng-container>
+      </mat-list>
+
+      <div class="empty-state" *ngIf="notifResponse.items.length === 0">
+        <mat-icon class="empty-icon">notifications_none</mat-icon>
+        <p>No notifications{{ showUnreadOnly ? ' (unread)' : '' }}</p>
+      </div>
+    </ng-container>
+  </mat-card-content>
+</mat-card>

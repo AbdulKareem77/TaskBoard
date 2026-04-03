@@ -1,0 +1,117 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <button mat-icon-button (click)="loadDashboard()" aria-label="Refresh">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
+
+<div class="loading-container" *ngIf="isLoading">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<div class="error-message" *ngIf="error && !isLoading">
+  {{ error }}
+</div>
+
+<div class="dashboard-grid" *ngIf="dashboard && !isLoading">
+  <!-- My Tasks columns -->
+  <mat-card class="tasks-section">
+    <mat-card-header>
+      <mat-card-title>My Tasks</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="task-columns">
+        <div class="task-column">
+          <h3 class="column-header todo-header">
+            To Do
+            <span class="count-badge">{{ dashboard.myTasks.todo.length }}</span>
+          </h3>
+          <app-task-summary-card
+            *ngFor="let task of dashboard.myTasks.todo"
+            [task]="task"
+          ></app-task-summary-card>
+          <p class="empty-state" *ngIf="dashboard.myTasks.todo.length === 0">No tasks</p>
+        </div>
+
+        <div class="task-column">
+          <h3 class="column-header inprogress-header">
+            In Progress
+            <span class="count-badge">{{ dashboard.myTasks.inProgress.length }}</span>
+          </h3>
+          <app-task-summary-card
+            *ngFor="let task of dashboard.myTasks.inProgress"
+            [task]="task"
+          ></app-task-summary-card>
+          <p class="empty-state" *ngIf="dashboard.myTasks.inProgress.length === 0">No tasks</p>
+        </div>
+
+        <div class="task-column">
+          <h3 class="column-header review-header">
+            Review
+            <span class="count-badge">{{ dashboard.myTasks.review.length }}</span>
+          </h3>
+          <app-task-summary-card
+            *ngFor="let task of dashboard.myTasks.review"
+            [task]="task"
+          ></app-task-summary-card>
+          <p class="empty-state" *ngIf="dashboard.myTasks.review.length === 0">No tasks</p>
+        </div>
+
+        <div class="task-column">
+          <h3 class="column-header done-header">
+            Done
+            <span class="count-badge">{{ dashboard.myTasks.done.length }}</span>
+          </h3>
+          <app-task-summary-card
+            *ngFor="let task of dashboard.myTasks.done"
+            [task]="task"
+          ></app-task-summary-card>
+          <p class="empty-state" *ngIf="dashboard.myTasks.done.length === 0">No tasks</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Project Summaries -->
+  <mat-card class="projects-section">
+    <mat-card-header>
+      <mat-card-title>Project Summaries</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="project-summary-list">
+        <div
+          class="project-summary-item"
+          *ngFor="let summary of dashboard.projectSummaries"
+          [routerLink]="['/projects', summary.projectId]"
+        >
+          <div class="project-name">{{ summary.projectName }}</div>
+          <div class="project-progress">
+            <div class="progress-bar-container">
+              <div
+                class="progress-bar-fill"
+                [style.width.%]="getCompletionPercent(summary.completedTasks, summary.totalTasks)"
+              ></div>
+            </div>
+            <span class="progress-label">
+              {{ summary.completedTasks }} / {{ summary.totalTasks }} tasks
+              ({{ getCompletionPercent(summary.completedTasks, summary.totalTasks) }}%)
+            </span>
+          </div>
+        </div>
+        <p class="empty-state" *ngIf="dashboard.projectSummaries.length === 0">
+          No projects found
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Recent Activity -->
+  <mat-card class="activity-section">
+    <mat-card-header>
+      <mat-card-title>Recent Activity</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-recent-activity [activities]="dashboard.recentActivity"></app-recent-activity>
+    </mat-card-content>
+  </mat-card>
+</div>

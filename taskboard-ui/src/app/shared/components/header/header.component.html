@@ -1,0 +1,11 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="menuToggle.emit()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="app-title">TaskBoard</span>
+  <span class="spacer"></span>
+  <app-notification-bell></app-notification-bell>
+  <button mat-icon-button (click)="onLogout()" aria-label="Logout">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>

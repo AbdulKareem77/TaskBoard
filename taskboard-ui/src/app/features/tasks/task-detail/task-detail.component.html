@@ -1,0 +1,126 @@
+<div class="loading-container" *ngIf="isLoading$ | async">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<div class="error-message" *ngIf="error$ | async as error">{{ error }}</div>
+
+<ng-container *ngIf="task$ | async as task">
+  <div class="page-header">
+    <div class="header-left">
+      <button mat-icon-button (click)="goBack()" matTooltip="Back to tasks">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>{{ task.title }}</h1>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="openEditDialog(task)">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-stroked-button color="warn" (click)="onDeleteTask(task)">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Task Details Card -->
+  <mat-card class="detail-card">
+    <mat-card-content>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Status</span>
+          <span [class]="'status-chip ' + getStatusClass(task.status)">{{ task.status }}</span>
+        </div>
+        <div class="detail-item" *ngIf="task.priority">
+          <span class="detail-label">Priority</span>
+          <span [class]="'priority-chip ' + getPriorityClass(task.priority)">{{ task.priority }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Due Date</span>
+          <span>{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Created By</span>
+          <span>{{ task.createdBy.fullName }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Created</span>
+          <span>{{ task.dateCreated | date:'medium' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Last Updated</span>
+          <span>{{ task.dateUpdated | timeAgo }}</span>
+        </div>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <div class="description-section">
+        <h3>Description</h3>
+        <p *ngIf="task.description">{{ task.description }}</p>
+        <p class="no-content" *ngIf="!task.description">No description provided.</p>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <!-- Assignees -->
+      <div class="assignees-section">
+        <div class="section-header">
+          <h3>Assignees</h3>
+          <button mat-icon-button matTooltip="Add assignee" (click)="showAddAssignee = !showAddAssignee">
+            <mat-icon>person_add</mat-icon>
+          </button>
+        </div>
+
+        <mat-form-field *ngIf="showAddAssignee" appearance="outline" class="assignee-select">
+          <mat-label>Select member to assign</mat-label>
+          <mat-select (selectionChange)="onAssignUser($event.value)">
+            <mat-option *ngFor="let m of (availableMembers$ | async)" [value]="m.userId">
+              {{ m.firstName }} {{ m.lastName }}
+            </mat-option>
+            <mat-option *ngIf="(availableMembers$ | async)?.length === 0" disabled>
+              All members already assigned
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="assignee-chips" *ngIf="task.assignees.length > 0">
+          <mat-chip *ngFor="let assignee of task.assignees" [removable]="true" (removed)="onUnassignUser(assignee.userId)">
+            <mat-icon matChipAvatar>person</mat-icon>
+            {{ assignee.fullName }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        </div>
+        <p class="no-content" *ngIf="task.assignees.length === 0 && !showAddAssignee">No assignees.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- History -->
+  <mat-card class="history-card" *ngIf="task.history.length > 0">
+    <mat-card-header>
+      <mat-card-title>History</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <ng-container *ngFor="let item of task.history; let last = last">
+          <mat-list-item>
+            <mat-icon matListItemIcon>history</mat-icon>
+            <div matListItemTitle>
+              <strong>{{ item.userName }}</strong> {{ item.action }}
+              <ng-container *ngIf="item.oldValue || item.newValue">
+                <span class="history-change">
+                  <em *ngIf="item.oldValue">from "{{ item.oldValue }}"</em>
+                  <em *ngIf="item.newValue"> to "{{ item.newValue }}"</em>
+                </span>
+              </ng-container>
+            </div>
+            <div matListItemLine class="history-date">{{ item.date | timeAgo }}</div>
+          </mat-list-item>
+          <mat-divider *ngIf="!last"></mat-divider>
+        </ng-container>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</ng-container>
