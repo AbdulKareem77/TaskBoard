@@ -61,7 +61,7 @@ public class DomainEventOutboxRepository : SqlRepositoryBase, IDomainEventOutbox
 
     public async Task MarkProcessedAsync(Guid id)
     {
-        const string sql = "UPDATE dbo.DomainEventOutbox SET Status = 'Pending', DateProcessed = SYSUTCDATETIME() WHERE Id = @Id";
+        const string sql = "UPDATE dbo.DomainEventOutbox SET Status = 'Processed', DateProcessed = SYSUTCDATETIME() WHERE Id = @Id";
         using var conn = CreateConnection();
         await conn.ExecuteAsync(sql, new { Id = id });
     }

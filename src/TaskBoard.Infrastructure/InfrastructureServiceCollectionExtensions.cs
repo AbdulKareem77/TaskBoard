@@ -21,6 +21,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
         services.AddScoped<IProjectRepository>(_ => new ProjectRepository(connectionString));
         services.AddScoped<ITaskRepository>(_ => new TaskRepository(connectionString));
+        services.AddScoped<ITaskHistoryRepository>(_ => new TaskHistoryRepository(connectionString));
         services.AddScoped<INotificationRepository>(_ => new NotificationRepository(connectionString));
         services.AddScoped<IDomainEventOutboxRepository>(_ => new DomainEventOutboxRepository(connectionString));
 
