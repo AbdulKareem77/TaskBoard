@@ -1,9 +1,14 @@
 <div class="page-header">
   <h1>Projects</h1>
-  <button mat-raised-button color="primary" (click)="openCreateDialog()">
-    <mat-icon>add</mat-icon>
-    New Project
-  </button>
+  <div class="header-actions">
+    <mat-slide-toggle [(ngModel)]="showArchived" (change)="onToggleArchived()">
+      Show archived
+    </mat-slide-toggle>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      New Project
+    </button>
+  </div>
 </div>
 
 <div class="loading-container" *ngIf="isLoading$ | async">
@@ -76,11 +81,22 @@
           <button mat-icon-button [routerLink]="['/projects', project.id, 'board']" matTooltip="Board view">
             <mat-icon>view_kanban</mat-icon>
           </button>
+          <button
+            mat-icon-button
+            (click)="onArchiveProject(project, $event)"
+            [matTooltip]="project.isArchived ? 'Unarchive project' : 'Archive project'"
+          >
+            <mat-icon>{{ project.isArchived ? 'unarchive' : 'archive' }}</mat-icon>
+          </button>
         </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns;"
+        [class.archived-row]="row.isArchived"
+      ></tr>
 
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell empty-row" [attr.colspan]="displayedColumns.length">

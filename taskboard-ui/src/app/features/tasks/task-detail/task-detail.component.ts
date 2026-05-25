@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe, Location } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, combineLatest, takeUntil } from 'rxjs';
@@ -15,6 +16,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AppState } from '../../../store/app.state';
 import { loadTask, clearSelectedTask, deleteTask, assignTask, unassignTask } from '../../../store/tasks/tasks.actions';
 import {
@@ -30,6 +32,8 @@ import { TaskFormComponent, TaskFormData } from '../task-form/task-form.componen
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { Router } from '@angular/router';
+import { TaskService } from '../../../core/services/task.service';
+import { TaskComment } from '../../../core/models/comment.model';
 
 @Component({
   selector: 'app-task-detail',
@@ -49,6 +53,8 @@ import { Router } from '@angular/router';
     MatTooltipModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
     TimeAgoPipe
   ],
   templateUrl: './task-detail.component.html',
@@ -63,6 +69,10 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
   projectId!: string;
   taskId!: string;
   showAddAssignee = false;
+  comments: TaskComment[] = [];
+  commentsLoading = false;
+  commentSubmitting = false;
+  commentForm!: FormGroup;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -71,7 +81,9 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly location: Location,
     private readonly store: Store<AppState>,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly fb: FormBuilder,
+    private readonly taskService: TaskService
   ) {
     this.task$ = this.store.select(selectSelectedTask);
     this.isLoading$ = this.store.select(selectTasksLoading);
@@ -81,8 +93,12 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('projectId') ?? '';
     this.taskId = this.route.snapshot.paramMap.get('taskId') ?? '';
+    this.commentForm = this.fb.group({
+      content: ['', [Validators.required, Validators.maxLength(4000)]]
+    });
     this.store.dispatch(loadTask({ projectId: this.projectId, taskId: this.taskId }));
     this.store.dispatch(loadProject({ projectId: this.projectId }));
+    this.loadComments();
 
     this.availableMembers$ = combineLatest([
       this.task$.pipe(filter((t): t is TaskItemDetail => t !== null)),
@@ -104,6 +120,10 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.location.back();
+  }
+
+  scrollToComments(): void {
+    document.getElementById('task-comments')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   onAssignUser(userId: string): void {
@@ -145,5 +165,46 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
 
   getPriorityClass(priority: string | null): string {
     return priority ? 'priority-' + priority.toLowerCase() : '';
+  }
+
+  loadComments(): void {
+    this.commentsLoading = true;
+    this.taskService
+      .getTaskComments(this.projectId, this.taskId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: comments => {
+          this.comments = comments;
+          this.commentsLoading = false;
+        },
+        error: () => {
+          this.commentsLoading = false;
+        }
+      });
+  }
+
+  onPostComment(): void {
+    if (this.commentForm.invalid || this.commentSubmitting) {
+      this.commentForm.markAllAsTouched();
+      return;
+    }
+
+    const content = this.commentForm.value.content?.trim();
+    if (!content) return;
+
+    this.commentSubmitting = true;
+    this.taskService
+      .createTaskComment(this.projectId, this.taskId, content)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: comment => {
+          this.comments = [comment, ...this.comments];
+          this.commentForm.reset();
+          this.commentSubmitting = false;
+        },
+        error: () => {
+          this.commentSubmitting = false;
+        }
+      });
   }
 }

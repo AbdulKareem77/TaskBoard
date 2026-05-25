@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using TaskBoard.Api.Logic.Models;
+using TaskBoard.Domain.Entities;
 using TaskBoard.Domain.Events;
 using TaskBoard.Infrastructure;
 using TaskBoard.Infrastructure.Events;

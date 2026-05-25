@@ -13,6 +13,10 @@
       </span>
     </div>
     <div class="header-actions">
+      <button mat-stroked-button (click)="onToggleArchive(project)">
+        <mat-icon>{{ project.isArchived ? 'unarchive' : 'archive' }}</mat-icon>
+        {{ project.isArchived ? 'Unarchive' : 'Archive' }}
+      </button>
       <button mat-stroked-button [routerLink]="['/projects', project.id, 'tasks']">
         <mat-icon>assignment</mat-icon>
         Tasks

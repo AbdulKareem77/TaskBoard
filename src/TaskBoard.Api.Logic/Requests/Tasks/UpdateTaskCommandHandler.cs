@@ -53,7 +53,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskI
         // Prepare update
         existingTask.Title = request.Title;
         existingTask.Description = request.Description;
-        existingTask.Status = request.Status == "InProgress" ? "In Progress" : request.Status;
+        existingTask.Status = request.Status;
         existingTask.Priority = request.Priority;
         existingTask.DueDate = request.DueDate;
         existingTask.RowVersion = request.RowVersion; // used as ExpectedVersion

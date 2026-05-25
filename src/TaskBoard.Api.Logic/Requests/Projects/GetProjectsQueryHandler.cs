@@ -35,7 +35,7 @@ public class GetProjectsQueryHandler : IRequestHandler<GetProjectsQuery, IEnumer
         var isAdmin = rolesClaimValue.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                      .Any(r => r.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase));
 
-        var projects = await _projectRepository.GetByUserIdAsync(userId, isAdmin);
+        var projects = await _projectRepository.GetByUserIdAsync(userId, isAdmin, request.IncludeArchived);
         return _mapper.Map<IEnumerable<ProjectDto>>(projects);
     }
 }

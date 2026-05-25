@@ -99,11 +99,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Global exception handler — catches ValidationException (400), UnauthorizedAccessException (403), etc.
-app.UseMiddleware<GlobalExceptionMiddleware>();
-
 // CORS must run first so preflight OPTIONS requests are handled before any auth middleware
 app.UseCors("TaskBoardCors");
+
+// Global exception handler — catches ValidationException (400), UnauthorizedAccessException (403), etc.
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Session validation middleware BEFORE authentication
 app.UseMiddleware<SessionValidationMiddleware>();

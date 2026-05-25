@@ -45,8 +45,7 @@ public class TaskAssignedEventHandler
             evt.AssigneeId.ToString(),
             evt.OccurredAt.ToString("O"));
 
-        var hasChanged = await _changeDetection.HasChangedAsync(evt.TaskId, "TaskAssigned", hash);
-        if (hasChanged)
+        if (!await _changeDetection.HasChangedAsync(evt.TaskId, "TaskAssigned", hash))
         {
             _logger.LogInformation("Duplicate TaskAssignedEvent for task {TaskId}, skipping.", evt.TaskId);
             return;

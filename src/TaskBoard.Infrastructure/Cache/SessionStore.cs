@@ -11,7 +11,7 @@ public class SessionStore : ISessionStore
         _redis = redis;
     }
 
-    private static string BuildKey(string sessionId) => $"session:{Guid.NewGuid()}";
+    private static string BuildKey(string sessionId) => $"session:{sessionId}";
 
     public async Task CreateSessionAsync(string sessionId, SessionData data, TimeSpan ttl)
     {

@@ -104,6 +104,32 @@ public class TasksController : ControllerBase
         return Ok(new { success = result });
     }
 
+    [HttpGet("api/projects/{projectId:guid}/tasks/{taskId:guid}/comments")]
+    public async Task<IActionResult> GetTaskComments(Guid projectId, Guid taskId)
+    {
+        var comments = await _mediator.Send(new GetTaskCommentsQuery
+        {
+            ProjectId = projectId,
+            TaskId = taskId
+        });
+        return Ok(comments);
+    }
+
+    [HttpPost("api/projects/{projectId:guid}/tasks/{taskId:guid}/comments")]
+    public async Task<IActionResult> CreateTaskComment(
+        Guid projectId,
+        Guid taskId,
+        [FromBody] CreateTaskCommentRequest request)
+    {
+        var comment = await _mediator.Send(new CreateTaskCommentCommand
+        {
+            ProjectId = projectId,
+            TaskId = taskId,
+            Content = request.Content
+        });
+        return CreatedAtAction(nameof(GetTaskComments), new { projectId, taskId }, comment);
+    }
+
     [HttpDelete("api/projects/{projectId:guid}/tasks/{taskId:guid}")]
     public async Task<IActionResult> DeleteTask(Guid projectId, Guid taskId)
     {
@@ -150,3 +176,5 @@ public record UpdateTaskRequest(
     int RowVersion);
 
 public record AssignTaskRequest(Guid UserId);
+
+public record CreateTaskCommentRequest(string Content);

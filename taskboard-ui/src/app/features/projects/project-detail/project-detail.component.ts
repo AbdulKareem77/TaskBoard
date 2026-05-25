@@ -84,6 +84,31 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  onToggleArchive(project: ProjectDetail): void {
+    const isArchived = project.isArchived;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '360px',
+      data: {
+        title: isArchived ? 'Unarchive Project' : 'Archive Project',
+        message: isArchived
+          ? `Restore "${project.name}" to the active project list?`
+          : `Archive "${project.name}"? It will be hidden from the default list.`,
+        confirmLabel: isArchived ? 'Unarchive' : 'Archive',
+        cancelLabel: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(confirmed => {
+      if (!confirmed) return;
+      const action$ = isArchived
+        ? this.projectService.unarchiveProject(this.projectId)
+        : this.projectService.archiveProject(this.projectId);
+      action$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.store.dispatch(loadProject({ projectId: this.projectId }));
+      });
+    });
+  }
+
   onRemoveMember(userId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '360px',

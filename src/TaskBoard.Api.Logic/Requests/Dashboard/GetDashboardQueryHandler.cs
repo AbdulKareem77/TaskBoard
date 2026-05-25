@@ -6,7 +6,7 @@ using TaskBoard.Infrastructure.Repositories;
 
 namespace TaskBoard.Api.Logic.Requests.Dashboard;
 
-public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, DashboardModel>
+public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, DashboardDto>
 {
     private readonly IProjectRepository _projectRepository;
     private readonly ITaskRepository _taskRepository;

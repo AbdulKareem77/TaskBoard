@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TaskItem, TaskItemDetail } from '../models/task-item.model';
+import { TaskComment } from '../models/comment.model';
 import { PagedResult } from '../models/paged-result.model';
 
 export interface CreateTaskRequest {
@@ -93,6 +94,23 @@ export class TaskService {
   deleteTask(projectId: string, taskId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/projects/${projectId}/tasks/${taskId}`
+    );
+  }
+
+  getTaskComments(projectId: string, taskId: string): Observable<TaskComment[]> {
+    return this.http.get<TaskComment[]>(
+      `${this.apiUrl}/projects/${projectId}/tasks/${taskId}/comments`
+    );
+  }
+
+  createTaskComment(
+    projectId: string,
+    taskId: string,
+    content: string
+  ): Observable<TaskComment> {
+    return this.http.post<TaskComment>(
+      `${this.apiUrl}/projects/${projectId}/tasks/${taskId}/comments`,
+      { content }
     );
   }
 

@@ -50,6 +50,12 @@ public class GlobalExceptionMiddleware
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Access denied." }));
         }
+        catch (KeyNotFoundException ex)
+        {
+            context.Response.StatusCode = 404;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message }));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);

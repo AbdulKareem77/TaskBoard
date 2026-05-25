@@ -50,8 +50,7 @@ public class TaskUpdatedEventHandler
             evt.NewStatus,
             evt.OccurredAt.ToString("O"));
 
-        var hasChanged = await _changeDetection.HasChangedAsync(evt.TaskId, "TaskUpdated", hash);
-        if (hasChanged)
+        if (!await _changeDetection.HasChangedAsync(evt.TaskId, "TaskUpdated", hash))
         {
             _logger.LogInformation("Duplicate TaskUpdatedEvent for task {TaskId}, skipping.", evt.TaskId);
             return;
