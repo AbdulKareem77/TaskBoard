@@ -5,7 +5,8 @@ namespace TaskBoard.Infrastructure.Repositories;
 
 public interface IProjectRepository
 {
-    Task<IEnumerable<Project>> GetByUserIdAsync(Guid userId, bool isAdmin);
+    Task<IEnumerable<Project>> GetByUserIdAsync(Guid userId, bool isAdmin, bool includeArchived = false);
+    Task SetArchivedAsync(Guid projectId, bool isArchived);
     Task<Project?> GetByIdAsync(Guid projectId);
     Task<Guid> InsertAsync(Project project);
     Task<IEnumerable<ProjectMember>> GetMembersAsync(Guid projectId);
@@ -19,12 +20,28 @@ public class ProjectRepository : SqlRepositoryBase, IProjectRepository
 {
     public ProjectRepository(string connectionString) : base(connectionString) { }
 
-    public async Task<IEnumerable<Project>> GetByUserIdAsync(Guid userId, bool isAdmin)
+    public async Task<IEnumerable<Project>> GetByUserIdAsync(Guid userId, bool isAdmin, bool includeArchived = false)
     {
         var sql = LoadSql("Projects_GetByUserId.sql");
         using var conn = CreateConnection();
-        var projects = await conn.QueryAsync<Project>(sql, new { UserId = userId, IsAdmin = isAdmin ? 1 : 0 });
+        var projects = await conn.QueryAsync<Project>(sql, new
+        {
+            UserId = userId,
+            IsAdmin = isAdmin ? 1 : 0,
+            IncludeArchived = includeArchived ? 1 : 0
+        });
         return projects;
+    }
+
+    public async Task SetArchivedAsync(Guid projectId, bool isArchived)
+    {
+        const string sql = @"
+            UPDATE dbo.Projects
+            SET IsArchived = @IsArchived, DateUpdated = SYSUTCDATETIME()
+            WHERE Id = @ProjectId";
+
+        using var conn = CreateConnection();
+        await conn.ExecuteAsync(sql, new { ProjectId = projectId, IsArchived = isArchived });
     }
 
     public async Task<Project?> GetByIdAsync(Guid projectId)

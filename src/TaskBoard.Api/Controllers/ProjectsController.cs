@@ -19,9 +19,9 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetProjects()
+    public async Task<IActionResult> GetProjects([FromQuery] bool includeArchived = false)
     {
-        var projects = await _mediator.Send(new GetProjectsQuery());
+        var projects = await _mediator.Send(new GetProjectsQuery { IncludeArchived = includeArchived });
         return Ok(projects);
     }
 
@@ -69,6 +69,20 @@ public class ProjectsController : ControllerBase
         };
         await _mediator.Send(command);
         return Ok(new { success = true });
+    }
+
+    [HttpPost("{projectId:guid}/archive")]
+    public async Task<IActionResult> ArchiveProject(Guid projectId)
+    {
+        var project = await _mediator.Send(new ArchiveProjectCommand { ProjectId = projectId });
+        return Ok(project);
+    }
+
+    [HttpPost("{projectId:guid}/unarchive")]
+    public async Task<IActionResult> UnarchiveProject(Guid projectId)
+    {
+        var project = await _mediator.Send(new UnarchiveProjectCommand { ProjectId = projectId });
+        return Ok(project);
     }
 }
 

@@ -1,7 +1,10 @@
 import { createAction, props } from '@ngrx/store';
 import { Project, ProjectDetail } from '../../core/models/project.model';
 
-export const loadProjects = createAction('[Projects] Load Projects');
+export const loadProjects = createAction(
+  '[Projects] Load Projects',
+  props<{ includeArchived?: boolean }>()
+);
 
 export const loadProjectsSuccess = createAction(
   '[Projects] Load Projects Success',

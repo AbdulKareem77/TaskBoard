@@ -20,8 +20,10 @@ export class ProjectService {
 
   constructor(private http: HttpClient) {}
 
-  getProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}/projects`);
+  getProjects(includeArchived = false): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/projects`, {
+      params: { includeArchived: includeArchived.toString() }
+    });
   }
 
   getProject(id: string): Observable<ProjectDetail> {
@@ -38,5 +40,13 @@ export class ProjectService {
 
   removeMember(projectId: string, userId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/projects/${projectId}/members/${userId}`);
+  }
+
+  archiveProject(projectId: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/projects/${projectId}/archive`, {});
+  }
+
+  unarchiveProject(projectId: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/projects/${projectId}/unarchive`, {});
   }
 }

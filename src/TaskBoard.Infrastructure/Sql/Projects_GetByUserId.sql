@@ -5,5 +5,5 @@ SELECT p.Id, p.Name, p.Description, p.OwnerId, p.IsArchived, p.DateCreated, p.Da
 FROM dbo.Projects p
 JOIN dbo.Users u ON u.Id = p.OwnerId
 WHERE (@IsAdmin = 1 OR EXISTS (SELECT 1 FROM dbo.ProjectMembers pm WHERE pm.ProjectId = p.Id AND pm.UserId = @UserId))
-  AND p.IsArchived = 0
-ORDER BY p.DateCreated DESC
+  AND (@IncludeArchived = 1 OR p.IsArchived = 0)
+ORDER BY p.IsArchived ASC, p.DateCreated DESC

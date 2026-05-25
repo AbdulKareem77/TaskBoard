@@ -1,4 +1,4 @@
-<div class="loading-container" *ngIf="isLoading$ | async">
+<div class="loading-container" *ngIf="(isLoading$ | async) && !(task$ | async)">
   <mat-spinner diameter="48"></mat-spinner>
 </div>
 
@@ -13,6 +13,10 @@
       <h1>{{ task.title }}</h1>
     </div>
     <div class="header-actions">
+      <button mat-stroked-button (click)="scrollToComments()">
+        <mat-icon>comment</mat-icon>
+        Comments
+      </button>
       <button mat-stroked-button (click)="openEditDialog(task)">
         <mat-icon>edit</mat-icon>
         Edit
@@ -93,6 +97,64 @@
           </mat-chip>
         </div>
         <p class="no-content" *ngIf="task.assignees.length === 0 && !showAddAssignee">No assignees.</p>
+      </div>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <!-- Comments (scroll here on task detail page) -->
+      <div class="comments-section" id="task-comments">
+        <div class="section-header">
+          <h3>
+            <mat-icon class="section-icon">comment</mat-icon>
+            Comments
+          </h3>
+        </div>
+
+        <form [formGroup]="commentForm" (ngSubmit)="onPostComment()" class="comment-form">
+          <mat-form-field appearance="outline" class="comment-input">
+            <mat-label>Write a comment</mat-label>
+            <textarea
+              matInput
+              formControlName="content"
+              rows="3"
+              placeholder="Discuss progress, ask questions, or share updates..."
+            ></textarea>
+            <mat-error *ngIf="commentForm.get('content')?.hasError('required')">
+              Comment cannot be empty
+            </mat-error>
+          </mat-form-field>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="commentSubmitting || commentForm.invalid"
+          >
+            <mat-icon>send</mat-icon>
+            Post Comment
+          </button>
+        </form>
+
+        <div class="comments-loading" *ngIf="commentsLoading">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+
+        <p class="no-content" *ngIf="!commentsLoading && comments.length === 0">
+          No comments yet. Be the first to comment.
+        </p>
+
+        <mat-list *ngIf="!commentsLoading && comments.length > 0" class="comment-list">
+          <ng-container *ngFor="let comment of comments; let last = last">
+            <mat-list-item>
+              <mat-icon matListItemIcon>comment</mat-icon>
+              <div matListItemTitle>
+                <strong>{{ comment.authorFullName }}</strong>
+                <span class="comment-date">{{ comment.dateCreated | timeAgo }}</span>
+              </div>
+              <div matListItemLine class="comment-content">{{ comment.content }}</div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </mat-list>
       </div>
     </mat-card-content>
   </mat-card>

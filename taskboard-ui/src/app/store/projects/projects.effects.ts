@@ -10,8 +10,8 @@ export class ProjectsEffects {
   loadProjects$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProjectsActions.loadProjects),
-      switchMap(() =>
-        this.projectService.getProjects().pipe(
+      switchMap(({ includeArchived }) =>
+        this.projectService.getProjects(includeArchived ?? false).pipe(
           map(projects => ProjectsActions.loadProjectsSuccess({ projects })),
           catchError(err =>
             of(

@@ -47,5 +47,8 @@ public class TaskBoardMappingProfile : Profile
             .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => new CreatedByDto(
                 src.CreatedByUserId,
                 src.CreatedByFullName ?? string.Empty)));
+
+        CreateMap<TaskComment, CommentDto>()
+            .ForMember(dest => dest.AuthorFullName, opt => opt.MapFrom(src => src.AuthorFullName ?? string.Empty));
     }
 }

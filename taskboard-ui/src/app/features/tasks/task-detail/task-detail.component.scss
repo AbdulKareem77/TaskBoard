@@ -112,6 +112,60 @@
   gap: 8px;
 }
 
+.comments-section {
+  margin-top: 8px;
+  padding: 16px;
+  background: #f8f9fc;
+  border-radius: 8px;
+  border: 1px solid #e8eaf6;
+}
+
+.section-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.section-icon {
+  color: #3f51b5;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comment-input {
+  width: 100%;
+}
+
+.comments-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.comment-list {
+  margin-top: 8px;
+}
+
+.comment-date {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+}
+
+.comment-content {
+  white-space: pre-wrap;
+  margin-top: 4px;
+}
+
 .history-card {
   margin-bottom: 24px;
 }
